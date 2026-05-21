@@ -1,0 +1,184 @@
+// auth/illustrations.jsx
+import React from "react";
+
+export function LoginIllus() {
+  return (
+    <svg
+      viewBox="0 0 200 200"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-44 h-44 mb-6"
+    >
+      <circle
+        cx="100"
+        cy="100"
+        r="90"
+        fill="rgba(255,255,255,0.04)"
+        stroke="rgba(255,255,255,0.08)"
+        strokeWidth="1"
+      />
+      <circle
+        cx="100"
+        cy="100"
+        r="65"
+        fill="rgba(255,255,255,0.06)"
+        stroke="rgba(255,255,255,0.1)"
+        strokeWidth="1"
+      />
+      <circle
+        cx="100"
+        cy="80"
+        r="28"
+        fill="rgba(255,255,255,0.15)"
+        stroke="rgba(255,255,255,0.3)"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M54 148c0-25.4 20.6-46 46-46s46 20.6 46 46"
+        fill="rgba(255,255,255,0.12)"
+        stroke="rgba(255,255,255,0.3)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <circle cx="100" cy="80" r="16" fill="rgba(255,255,255,0.9)" />
+      <rect
+        x="82"
+        y="128"
+        width="36"
+        height="26"
+        rx="5"
+        fill="rgba(37,99,235,0.7)"
+        stroke="rgba(255,255,255,0.25)"
+        strokeWidth="1"
+      />
+      <rect
+        x="91"
+        y="137"
+        width="18"
+        height="12"
+        rx="2"
+        fill="rgba(255,255,255,0.2)"
+      />
+      <circle cx="100" cy="141" r="3" fill="rgba(255,255,255,0.8)" />
+      <line
+        x1="100"
+        y1="144"
+        x2="100"
+        y2="148"
+        stroke="rgba(255,255,255,0.8)"
+        strokeWidth="1.5"
+      />
+      <circle
+        cx="155"
+        cy="55"
+        r="8"
+        fill="rgba(255,255,255,0.08)"
+        stroke="rgba(255,255,255,0.15)"
+        strokeWidth="1"
+      />
+      <circle
+        cx="44"
+        cy="145"
+        r="5"
+        fill="rgba(255,255,255,0.08)"
+        stroke="rgba(255,255,255,0.15)"
+        strokeWidth="1"
+      />
+    </svg>
+  );
+}
+
+export function SignupIllus() {
+  return (
+    <svg
+      viewBox="0 0 200 200"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-44 h-44 mb-6"
+    >
+      <circle
+        cx="100"
+        cy="100"
+        r="90"
+        fill="rgba(255,255,255,0.04)"
+        stroke="rgba(255,255,255,0.07)"
+        strokeWidth="1"
+      />
+      <rect
+        x="50"
+        y="55"
+        width="100"
+        height="90"
+        rx="12"
+        fill="rgba(255,255,255,0.08)"
+        stroke="rgba(255,255,255,0.15)"
+        strokeWidth="1.5"
+      />
+      <rect
+        x="62"
+        y="70"
+        width="48"
+        height="6"
+        rx="3"
+        fill="rgba(255,255,255,0.3)"
+      />
+      <rect
+        x="62"
+        y="82"
+        width="76"
+        height="5"
+        rx="2.5"
+        fill="rgba(255,255,255,0.15)"
+      />
+      <rect
+        x="62"
+        y="94"
+        width="60"
+        height="5"
+        rx="2.5"
+        fill="rgba(255,255,255,0.15)"
+      />
+      <rect
+        x="62"
+        y="106"
+        width="76"
+        height="5"
+        rx="2.5"
+        fill="rgba(255,255,255,0.15)"
+      />
+      <rect
+        x="62"
+        y="118"
+        width="60"
+        height="5"
+        rx="2.5"
+        fill="rgba(255,255,255,0.15)"
+      />
+      <rect
+        x="62"
+        y="132"
+        width="76"
+        height="10"
+        rx="4"
+        fill="rgba(37,99,235,0.6)"
+        stroke="rgba(255,255,255,0.2)"
+        strokeWidth="0.5"
+      />
+      <circle
+        cx="155"
+        cy="60"
+        r="18"
+        fill="rgba(52,211,153,0.2)"
+        stroke="rgba(52,211,153,0.5)"
+        strokeWidth="1.5"
+      />
+      <path
+        d="M147 60l5 5 9-9"
+        stroke="rgba(52,211,153,0.9)"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}

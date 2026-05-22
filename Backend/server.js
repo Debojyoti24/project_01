@@ -265,7 +265,7 @@ MIDDLEWARE
 // Define the list of domains allowed to access this API
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://project-01-yr7e.vercel.app",
+  "https://project-01-eight-tau.vercel.app",
 ];
 
 app.use(

@@ -22,6 +22,9 @@ export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showRePassword, setShowRePassword] = useState(false);
 
+  // Status manager for styling input boxes: "idle" | "success" | "error"
+  const [otpStatus, setOtpStatus] = useState("idle");
+
   const inputsRef = useRef([]);
 
   // Handle Input Change
@@ -34,10 +37,10 @@ export default function SignUpForm() {
 
   /*
   =========================
-  EMAIL VALIDATION
+  EMAIL VALIDATION (SENDING OTP)
   =========================
   */
-  const validateEmail = () => {
+  const validateEmail = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(form.email)) {
@@ -46,35 +49,78 @@ export default function SignUpForm() {
     }
 
     setError("");
-    setShowOtp(true);
-    setEmailValidated(false);
+
+    try {
+      // ✅ FIXED: Activated API gateway call to send the code to your server
+      await axios.post("http://localhost:5000/api/send-otp", {
+        email: form.email,
+      });
+
+      setShowOtp(true);
+      setOtpStatus("idle");
+      setOtp(["", "", "", "", "", ""]);
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Failed to send verification code",
+      );
+    }
   };
 
   /*
   =========================
-  OTP HANDLER
+  OTP HANDLER WITH COLOR FLASHING
   =========================
   */
-  const handleOtpChange = (value, index) => {
+  const handleOtpChange = async (value, index) => {
+    // Block layout input if we are presenting validation transitions
+    if (otpStatus !== "idle") return;
     if (!/^[0-9]?$/.test(value)) return;
 
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Auto focus next input
+    // Auto focus next input box sequence
     if (value && index < 5) {
       inputsRef.current[index + 1]?.focus();
     }
 
-    // Validate OTP length
     const otpValue = newOtp.join("");
 
+    // Trigger confirmation when 6 digits are complete
     if (otpValue.length === 6) {
-      setEmailValidated(true);
-      setError("");
-    } else {
-      setEmailValidated(false);
+      try {
+        setError("");
+
+        const response = await axios.post(
+          "http://localhost:5000/api/verify-otp",
+          {
+            email: form.email,
+            otp: otpValue,
+          },
+        );
+
+        if (response.status === 200) {
+          // Success State Allocation
+          setOtpStatus("success");
+          setEmailValidated(true);
+
+          // Grace period for color transition visibility
+          setTimeout(() => {
+            setShowOtp(false);
+          }, 800);
+        }
+      } catch (err) {
+        // Error Handler Flash State
+        setOtpStatus("error");
+
+        setTimeout(() => {
+          setOtp(["", "", "", "", "", ""]);
+          setOtpStatus("idle");
+          inputsRef.current[0]?.focus(); // Return focal focus to index zero
+          alert("Please enter correct OTP");
+        }, 2000);
+      }
     }
   };
 
@@ -97,7 +143,7 @@ export default function SignUpForm() {
     }
 
     if (!emailValidated) {
-      setError("Please enter valid 6-digit OTP");
+      setError("Please validate your email via OTP first");
       return;
     }
 
@@ -120,7 +166,7 @@ export default function SignUpForm() {
 
       alert(response.data.message);
 
-      // Reset Form
+      // Reset System States
       setForm({
         name: "",
         employeeId: "",
@@ -133,6 +179,7 @@ export default function SignUpForm() {
       setOtp(["", "", "", "", "", ""]);
       setShowOtp(false);
       setEmailValidated(false);
+      setOtpStatus("idle");
 
       navigate("/signin");
     } catch (err) {
@@ -147,7 +194,7 @@ export default function SignUpForm() {
       {/* Header */}
       <h1 className="text-3xl font-semibold text-white">Create Account</h1>
 
-      {/* Error */}
+      {/* Error Output Displays */}
       {error && (
         <p className="text-red-400 text-sm bg-red-500/10 p-2 rounded">
           {error}
@@ -182,43 +229,59 @@ export default function SignUpForm() {
           className="w-full px-3 py-2 bg-[#2a2a2a] text-white rounded-lg outline-none"
         />
 
-        {/* EMAIL */}
+        {/* EMAIL & VALIDATION BUTTON */}
         <div className="flex gap-2">
           <input
             name="email"
             type="email"
             placeholder="Email"
+            disabled={emailValidated}
             value={form.email}
             onChange={handleChange}
-            className="flex-1 px-3 py-2 bg-[#2a2a2a] text-white rounded-lg outline-none"
+            className="flex-1 px-3 py-2 bg-[#2a2a2a] text-white rounded-lg outline-none disabled:opacity-60"
           />
 
-          {!showOtp && (
-            <button
-              type="button"
-              onClick={validateEmail}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition"
-            >
-              Validate
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={validateEmail}
+            disabled={emailValidated}
+            className={`px-4 py-2 text-white rounded-lg transition duration-200 ${
+              emailValidated
+                ? "bg-green-600 cursor-not-allowed"
+                : "bg-indigo-600 hover:bg-indigo-500"
+            }`}
+          >
+            {emailValidated ? "Validated" : "Validate"}
+          </button>
         </div>
 
-        {/* OTP */}
+        {/* OTP INPUTS */}
         {showOtp && (
-          <div className="flex justify-between gap-2">
-            {otp.map((digit, index) => (
-              <input
-                key={index}
-                ref={(el) => (inputsRef.current[index] = el)}
-                type="text"
-                inputMode="numeric"
-                maxLength="1"
-                value={digit}
-                onChange={(e) => handleOtpChange(e.target.value, index)}
-                className="w-10 h-10 text-center bg-[#2a2a2a] text-white rounded-lg outline-none"
-              />
-            ))}
+          <div className="flex justify-between gap-2 animate-fade-in">
+            {otp.map((digit, index) => {
+              let inputBgColor = "bg-[#2a2a2a] border-transparent";
+              if (otpStatus === "success") {
+                inputBgColor =
+                  "bg-green-900/40 border-2 border-green-500 text-green-200";
+              } else if (otpStatus === "error") {
+                inputBgColor =
+                  "bg-red-900/40 border-2 border-red-500 text-red-200";
+              }
+
+              return (
+                <input
+                  key={index}
+                  ref={(el) => (inputsRef.current[index] = el)}
+                  type="text"
+                  inputMode="numeric"
+                  maxLength="1"
+                  value={digit}
+                  disabled={otpStatus !== "idle"}
+                  onChange={(e) => handleOtpChange(e.target.value, index)}
+                  className={`w-10 h-10 text-center text-white rounded-lg outline-none transition-all duration-300 ${inputBgColor}`}
+                />
+              );
+            })}
           </div>
         )}
 
@@ -279,26 +342,8 @@ export default function SignUpForm() {
             )}
           </button>
         </div>
-        {/* RE PASSWORD
-        <div className="relative">
-          <input
-            name="rePassword"
-            type={showRePassword ? "text" : "password"}
-            placeholder="Re-enter Password"
-            value={form.rePassword}
-            onChange={handleChange}
-            className="w-full px-3 py-2 bg-[#2a2a2a] text-white rounded-lg pr-10 outline-none"
-          />
-
-          <button
-            type="button"
-            onClick={() => setShowRePassword(!showRePassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-white"
-          >
-            👁
-          </button>
-        </div> */}
         {/* RE-ENTER PASSWORD */}
+
         <div className="relative">
           <input
             name="rePassword"
@@ -359,7 +404,7 @@ export default function SignUpForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-2.5 px-4 bg-indigo-600 text-white hover:bg-indigo-500 rounded-lg font-medium transition-all duration-200"
+          className="w-full py-2.5 px-4 bg-indigo-600 text-white hover:bg-indigo-500 rounded-lg font-medium transition-all duration-200 disabled:opacity-50"
         >
           {loading ? "Creating..." : "Create Account"}
         </button>
